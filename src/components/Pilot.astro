@@ -1,0 +1,212 @@
+---
+import { copy } from '../content/copy.en';
+import { FORM_ENDPOINT } from '../config';
+const p = copy.pilot;
+const f = p.fields;
+const open = Boolean(FORM_ENDPOINT);
+
+const fields = [
+  { name: 'name', label: f.name, type: 'text', required: true, autocomplete: 'name' },
+  { name: 'email', label: f.email, type: 'email', required: true, autocomplete: 'email' },
+  { name: 'phone', label: f.phone, type: 'tel', required: false, autocomplete: 'tel' },
+  { name: 'region', label: f.region, type: 'text', required: true, autocomplete: 'address-level1' },
+  { name: 'farm_size', label: f.farmSize, type: 'text', required: true, hint: f.farmSizeHint },
+  { name: 'crops', label: f.crops, type: 'text', required: true },
+  { name: 'tractor', label: f.tractor, type: 'text', required: false },
+];
+---
+<section class="section pilot" id="pilot" aria-labelledby="pilot-title">
+  <div class="wrap pilot-grid">
+    <div class="pilot-text">
+      <p class="label reveal">{p.label}</p>
+      <h2 id="pilot-title" class="h2 reveal" style="--i:1">{p.title}</h2>
+      <p class="body reveal" style="--i:2">{p.body}</p>
+      {!open && <p class="closed reveal" style="--i:3"><span class="dot" aria-hidden="true"></span>{p.closed}</p>}
+    </div>
+
+    <form
+      class="pilot-form ticks reveal"
+      style="--i:2"
+      action={open ? FORM_ENDPOINT : undefined}
+      method="POST"
+      data-pilot-form
+      data-open={open ? 'true' : 'false'}
+      aria-describedby={!open ? 'pilot-closed' : undefined}
+    >
+      {!open && <p id="pilot-closed" class="sr-only">{p.closed}</p>}
+      <fieldset disabled={!open}>
+        <legend class="sr-only">{p.title}</legend>
+        <div class="grid">
+          {fields.map((fd) => (
+            <div class="field">
+              <label for={`f-${fd.name}`}>
+                {fd.label}
+                {!fd.required && <span class="opt">{f.optional}</span>}
+              </label>
+              <input
+                id={`f-${fd.name}`}
+                name={fd.name}
+                type={fd.type}
+                required={fd.required}
+                autocomplete={fd.autocomplete}
+                aria-describedby={`${fd.hint ? `h-${fd.name} ` : ''}e-${fd.name}`}
+              />
+              {fd.hint && <p class="hint" id={`h-${fd.name}`}>{fd.hint}</p>}
+              <p class="err" id={`e-${fd.name}`} aria-live="polite"></p>
+            </div>
+          ))}
+          <div class="field field--full">
+            <label for="f-notes">{f.notes}<span class="opt">{f.optional}</span></label>
+            <textarea id="f-notes" name="notes" rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- Honeypot: hidden from people, bots fill it in -->
+        <div class="hp" aria-hidden="true">
+          <label for="f-gotcha">Leave this empty</label>
+          <input id="f-gotcha" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="consent">
+          <input id="f-consent" type="checkbox" name="consent" value="yes" required aria-describedby="e-consent" />
+          <label for="f-consent">{f.consentBefore} <a href="/privacy">{f.consentLink}</a>.</label>
+          <p class="err" id="e-consent" aria-live="polite"></p>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn--primary submit">
+            <span data-submit-label>{p.submit}</span> <span class="arrow" aria-hidden="true">→</span>
+          </button>
+          <p class="status" role="status" aria-live="polite" data-status></p>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</section>
+
+<style>
+  .pilot { background: linear-gradient(180deg, var(--bg) 0%, #0e100c 100%); }
+  .pilot-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(40px, 6vw, 96px); align-items: start; }
+  .pilot-text { display: grid; gap: 28px; position: sticky; top: calc(var(--nav-h) + 40px); }
+  .closed { display: inline-flex; align-items: center; gap: 12px; font-family: var(--font-display); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--text); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+  .pilot-form { border: 1px solid var(--line); background: var(--bg-raised); padding: clamp(24px, 3.5vw, 44px); }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  fieldset[disabled] { opacity: .5; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 24px; }
+  .field { display: grid; gap: 8px; align-content: start; }
+  .field--full { grid-column: 1 / -1; }
+  label { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--text); }
+  .opt { color: var(--text-dim); margin-left: 8px; letter-spacing: .1em; }
+  input[type='text'], input[type='email'], input[type='tel'], textarea {
+    width: 100%; font: inherit; font-size: 17px; color: var(--text);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 2px;
+    padding: 12px 14px; min-height: 48px;
+    transition: border-color .2s var(--ease);
+  }
+  textarea { resize: vertical; min-height: 110px; }
+  input:hover, textarea:hover { border-color: #3d413a; }
+  input:focus-visible, textarea:focus-visible { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 0; }
+  input[aria-invalid='true'] { border-color: #ff8a6b; }
+  .hint { font-size: 14px; color: var(--text-dim); }
+  .err { font-size: 14px; color: #ff9f86; min-height: 0; }
+  .err:empty { display: none; }
+
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+  .consent { margin-top: 28px; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: start; }
+  .consent label { font-family: var(--font-body); text-transform: none; letter-spacing: 0; font-size: 15.5px; color: var(--text-dim); line-height: 1.5; }
+  .consent a { color: var(--text); text-underline-offset: 3px; }
+  .consent .err { grid-column: 2; }
+  input[type='checkbox'] {
+    appearance: none; width: 22px; height: 22px; margin: 1px 0 0; border: 1px solid #4a4e46; border-radius: 2px; background: var(--bg);
+    display: grid; place-items: center; cursor: pointer;
+  }
+  input[type='checkbox']::after { content: ''; width: 10px; height: 10px; background: var(--accent); transform: scale(0); transition: transform .15s var(--ease); }
+  input[type='checkbox']:checked { border-color: var(--accent); }
+  input[type='checkbox']:checked::after { transform: scale(1); }
+
+  .actions { margin-top: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .status { font-size: 16px; color: var(--text); }
+  .status.is-ok { color: var(--accent); }
+  .status.is-err { color: #ff9f86; }
+  .pilot-form.is-done .grid, .pilot-form.is-done .consent, .pilot-form.is-done .submit { display: none; }
+  .pilot-form.is-done .status { font-family: var(--font-display); font-size: clamp(1.2rem, 2vw, 1.6rem); text-transform: uppercase; letter-spacing: .06em; }
+
+  @media (max-width: 900px) {
+    .pilot-grid { grid-template-columns: 1fr; }
+    .pilot-text { position: static; }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .submit { width: 100%; }
+  }
+</style>
+
+<script>
+  import { copy } from '../content/copy.en';
+  const t = copy.pilot;
+  const form = document.querySelector<HTMLFormElement>('[data-pilot-form]');
+
+  if (form && form.dataset.open === 'true') {
+    form.noValidate = true;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const label = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    const setErr = (el: HTMLInputElement, msg: string) => {
+      const e = form.querySelector<HTMLElement>(`#e-${el.name === 'consent' ? 'consent' : el.name}`);
+      if (e) e.textContent = msg;
+      if (msg) el.setAttribute('aria-invalid', 'true');
+      else el.removeAttribute('aria-invalid');
+    };
+
+    const validate = () => {
+      let first: HTMLInputElement | null = null;
+      form.querySelectorAll<HTMLInputElement>('input[required]').forEach((el) => {
+        let msg = '';
+        if (el.type === 'checkbox') { if (!el.checked) msg = t.consentRequired; }
+        else if (!el.value.trim()) msg = t.required;
+        else if (el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) msg = t.invalidEmail;
+        setErr(el, msg);
+        if (msg && !first) first = el;
+      });
+      if (first) (first as HTMLInputElement).focus();
+      return !first;
+    };
+
+    form.addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.getAttribute('aria-invalid') === 'true') setErr(el, '');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = '';
+      status.className = 'status';
+      if (!validate()) return;
+      btn.disabled = true;
+      label.textContent = t.sending;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        form.classList.add('is-done');
+        status.textContent = t.success;
+        status.classList.add('is-ok');
+      } catch {
+        status.textContent = t.error;
+        status.classList.add('is-err');
+      } finally {
+        btn.disabled = false;
+        label.textContent = t.submit;
+      }
+    });
+  }
+</script>

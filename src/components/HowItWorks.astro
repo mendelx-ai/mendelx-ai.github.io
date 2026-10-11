@@ -1,0 +1,127 @@
+---
+import { copy } from '../content/copy.en';
+const c = copy.how;
+---
+<section class="section how" id="technology" aria-labelledby="how-title">
+  <span id="how-it-works" class="anchor" aria-hidden="true"></span>
+  <div class="wrap">
+    <header class="how-head">
+      <p class="label reveal">{c.label}</p>
+      <h2 id="how-title" class="h2 reveal" style="--i:1">{c.title}</h2>
+    </header>
+
+    <div class="how-grid" data-how>
+      <ol class="how-steps">
+        {c.steps.map((s, i) => (
+          <li class="how-step" data-step={i}>
+            <div class="step-inner">
+              <p class="step-label">{s.label}</p>
+              <h3 class="h3 step-title">{s.title}</h3>
+              <p class="body">{s.body}</p>
+            </div>
+            <div class="step-frame ticks" aria-hidden="true">
+              <canvas data-frame={i}></canvas>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="how-stage" aria-hidden="true">
+        <div class="stage-box ticks">
+          <canvas data-stage></canvas>
+          <div class="stage-progress"><span data-progress></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .anchor { position: absolute; top: 0; }
+  .how-head { display: grid; gap: 28px; margin-bottom: clamp(48px, 8vh, 96px); }
+  .how-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(40px, 6vw, 96px); }
+  .how-steps { list-style: none; margin: 0; padding: 0; }
+  .how-step { min-height: 72vh; display: flex; flex-direction: column; justify-content: center; }
+  .how-step:first-child { min-height: 52vh; justify-content: flex-start; padding-top: 6vh; }
+  .how-step:last-child { min-height: 64vh; }
+  .step-inner { display: grid; gap: 16px; border-left: 1px solid var(--line); padding-left: 28px; transition: border-color .4s var(--ease); }
+  .how-step.is-active .step-inner { border-color: var(--accent); }
+  .step-label { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-dim); transition: color .4s var(--ease); }
+  .step-title { font-size: clamp(1.6rem, 2.6vw, 2.4rem); color: var(--text-dim); transition: color .4s var(--ease); }
+  .how-step.is-active .step-label { color: var(--accent); }
+  .how-step.is-active .step-title { color: var(--text); }
+  .step-frame { display: none; }
+
+  .how-stage { position: relative; }
+  .stage-box {
+    position: sticky; top: calc(var(--nav-h) + max(24px, (100vh - var(--nav-h) - min(72vh, 620px)) / 2));
+    height: min(72vh, 620px); border: 1px solid var(--line); background: var(--bg);
+  }
+  .stage-box canvas { width: 100%; height: 100%; }
+  .stage-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--line); }
+  .stage-progress span { display: block; height: 100%; background: var(--accent); width: 0; }
+
+  @media (max-width: 900px) {
+    .how-grid { grid-template-columns: 1fr; }
+    .how-stage { display: none; }
+    .how-step, .how-step:first-child, .how-step:last-child { min-height: 0; padding: 0 0 56px; gap: 24px; }
+    .step-inner { border-color: var(--accent); }
+    .step-frame { display: block; aspect-ratio: 4 / 3; border: 1px solid var(--line); }
+    .step-frame canvas { width: 100%; height: 100%; }
+  }
+  :global(html:not(.js)) .step-title { color: var(--text); }
+</style>
+
+<script>
+  import { OrbitScene } from '../scripts/orbit-sequence';
+
+  const root = document.querySelector<HTMLElement>('[data-how]')!;
+  const steps = Array.from(root.querySelectorAll<HTMLElement>('.how-step'));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const desktop = window.matchMedia('(min-width: 901px)');
+  const bar = root.querySelector<HTMLElement>('[data-progress]')!;
+
+  let stage: OrbitScene | null = null;
+  let frames: OrbitScene[] = [];
+
+  function onScroll() {
+    if (!stage) return;
+    const vc = window.innerHeight * 0.5;
+    const centers = steps.map((s) => {
+      const r = s.querySelector('.step-inner')!.getBoundingClientRect();
+      return r.top + r.height / 2;
+    });
+    // Continuous progress 0..2 based on which step is at the viewport centre.
+    let p = 0;
+    if (vc <= centers[0]) p = 0;
+    else if (vc >= centers[2]) p = 2;
+    else if (vc < centers[1]) p = (vc - centers[0]) / (centers[1] - centers[0]);
+    else p = 1 + (vc - centers[1]) / (centers[2] - centers[1]);
+    stage.setProgress(p);
+    bar.style.width = `${(p / 2) * 100}%`;
+    const active = Math.round(p);
+    steps.forEach((s, i) => s.classList.toggle('is-active', i === active));
+  }
+
+  function setup() {
+    stage?.destroy(); stage = null;
+    frames.forEach((f) => f.destroy()); frames = [];
+    if (desktop.matches) {
+      stage = new OrbitScene(root.querySelector('[data-stage]')!, { animate: !reduce });
+      onScroll();
+    } else {
+      frames = Array.from(root.querySelectorAll<HTMLCanvasElement>('[data-frame]')).map(
+        (cv) => new OrbitScene(cv, { animate: !reduce, fixedP: Number(cv.dataset.frame) }),
+      );
+      steps.forEach((s) => s.classList.add('is-active'));
+    }
+  }
+
+  setup();
+  desktop.addEventListener('change', setup);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  document.addEventListener('visibilitychange', () => { stage?.resume(); frames.forEach((f) => f.resume()); });
+  // Redraw once fonts are ready so canvas labels use Chakra Petch.
+  document.fonts?.ready.then(() => { stage?.resume(); frames.forEach((f) => f.resume()); });
+</script>

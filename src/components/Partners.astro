@@ -1,0 +1,26 @@
+---
+import { copy } from '../content/copy.en';
+import { CONTACT_EMAIL } from '../config';
+const p = copy.partners;
+const href = CONTACT_EMAIL ? `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Partnering with mendelX')}` : '#pilot';
+---
+<section class="section partners" id="partners" aria-labelledby="partners-title">
+  <div class="wrap partners-inner">
+    <div class="partners-text">
+      <p class="label reveal">{p.label}</p>
+      <h2 id="partners-title" class="h2 reveal" style="--i:1">{p.title}</h2>
+      <p class="body reveal" style="--i:2">{p.body}</p>
+    </div>
+    <div class="reveal" style="--i:3">
+      <a class="btn btn--ghost partners-btn" href={href}>{p.cta} <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .partners-inner { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end; }
+  .partners-text { display: grid; gap: 28px; }
+  .partners-text .body { max-width: 52ch; }
+  .partners-btn { --h: 60px; padding: 0 32px; }
+  @media (max-width: 800px) { .partners-inner { grid-template-columns: 1fr; } .partners-btn { width: 100%; } }
+</style>

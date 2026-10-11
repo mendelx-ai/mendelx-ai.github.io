@@ -1,0 +1,44 @@
+---
+import { copy } from '../content/copy.en';
+const t = copy.team;
+---
+<section class="section team" id="team" aria-labelledby="team-title">
+  <div class="wrap">
+    <div class="team-head">
+      <p class="label reveal">{t.label}</p>
+      <h2 id="team-title" class="h2 reveal" style="--i:1">{t.title}</h2>
+    </div>
+    <ul class="team-grid">
+      {t.people.map((p, i) => (
+        <li class="person reveal" style={`--i:${i}`}>
+          {/* Replace the monogram with a photo later: <img src="/team/pavlos.jpg" alt="" class="mono" /> */}
+          <div class="mono ticks" aria-hidden="true"><span>{p.initials}</span></div>
+          <div class="person-text">
+            <p class="person-role">{p.role}</p>
+            <h3 class="h3 person-name">{p.name}</h3>
+            <p class="body">{p.bio}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .team-head { display: grid; gap: 28px; margin-bottom: clamp(48px, 8vh, 88px); }
+  .team-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 56px); }
+  .person { display: grid; grid-template-columns: auto 1fr; gap: 28px; padding: 32px; border: 1px solid var(--line); background: var(--bg-raised); align-items: start; }
+  .mono {
+    width: clamp(88px, 9vw, 120px); aspect-ratio: 1; border: 1px solid var(--line);
+    display: grid; place-items: center; object-fit: cover;
+    background:
+      linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat,
+      linear-gradient(var(--line), var(--line)) center / 100% 1px no-repeat;
+  }
+  .mono span { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.4rem, 2vw, 1.8rem); letter-spacing: .08em; background: var(--bg-raised); padding: 4px 6px; }
+  .person-text { display: grid; gap: 10px; }
+  .person-role { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  .person-name { font-size: clamp(1.15rem, 1.6vw, 1.45rem); }
+  @media (max-width: 1000px) { .team-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .person { grid-template-columns: 1fr; padding: 24px; } }
+</style>

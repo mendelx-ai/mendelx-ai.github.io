@@ -1,0 +1,138 @@
+---
+import Logo from './Logo.astro';
+import { copy } from '../content/copy.en';
+---
+<header class="nav" data-nav>
+  <div class="nav-inner wrap">
+    <a href="/" class="nav-logo" aria-label="mendelX — home"><Logo size={24} /></a>
+
+    <nav class="nav-links" aria-label="Main">
+      <ul>
+        {copy.nav.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="nav-right">
+      <a href="/#pilot" class="btn btn--primary btn--sm nav-cta">{copy.nav.cta}</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
+        <span class="sr-only">{copy.nav.menu}</span>
+        <span class="bars" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label={copy.nav.menu} hidden data-menu>
+    <div class="menu-top wrap">
+      <Logo size={24} />
+      <button class="menu-close" type="button" data-menu-close>
+        <span class="label label--plain">{copy.nav.close}</span>
+        <span class="x" aria-hidden="true"></span>
+      </button>
+    </div>
+    <nav class="wrap menu-links" aria-label="Mobile">
+      <ol>
+        {copy.nav.links.map((l, i) => (
+          <li>
+            <a href={l.href} data-menu-link>
+              <span class="menu-idx">{String(i + 1).padStart(2, '0')}</span>{l.label}
+            </a>
+          </li>
+        ))}
+      </ol>
+      <a href="/#pilot" class="btn btn--primary" data-menu-link>{copy.nav.cta} <span class="arrow" aria-hidden="true">→</span></a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    height: var(--nav-h);
+    transition: background-color .3s var(--ease), border-color .3s var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+  .nav.is-scrolled { background: rgba(11, 12, 10, .88); backdrop-filter: blur(10px); border-bottom-color: var(--line); }
+  .nav-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .nav-logo { text-decoration: none; display: inline-flex; padding: 6px 0; }
+  .nav-links ul { display: flex; gap: clamp(20px, 3vw, 44px); list-style: none; margin: 0; padding: 0; }
+  .nav-links a {
+    font-family: var(--font-display); font-weight: 500; font-size: 13px;
+    letter-spacing: .16em; text-transform: uppercase; text-decoration: none;
+    color: var(--text-dim); transition: color .2s var(--ease);
+    padding: 8px 0; position: relative;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 1px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+
+  .nav-toggle { display: none; width: 44px; height: 44px; background: none; border: 1px solid var(--line); border-radius: 2px; color: var(--text); cursor: pointer; align-items: center; justify-content: center; }
+  .bars { display: grid; gap: 6px; width: 18px; }
+  .bars span { height: 1.5px; background: currentColor; }
+
+  .menu {
+    position: fixed; inset: 0; z-index: 60; background: var(--bg);
+    display: flex; flex-direction: column;
+  }
+  .menu[hidden] { display: none; }
+  .menu-top { height: var(--nav-h); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  .menu-close { display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; color: var(--text); cursor: pointer; min-height: 44px; padding: 0; }
+  .menu-close .x { width: 18px; height: 18px; position: relative; }
+  .menu-close .x::before, .menu-close .x::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: currentColor; }
+  .menu-close .x::before { transform: rotate(45deg); }
+  .menu-close .x::after { transform: rotate(-45deg); }
+  .menu-links { padding-block: 32px; display: flex; flex-direction: column; gap: 40px; }
+  .menu-links ol { list-style: none; margin: 0; padding: 0; }
+  .menu-links li { border-bottom: 1px solid var(--line); }
+  .menu-links li a {
+    display: flex; align-items: baseline; gap: 18px; padding: 18px 0;
+    font-family: var(--font-display); font-weight: 600; font-size: clamp(1.75rem, 8vw, 2.5rem);
+    letter-spacing: .05em; text-transform: uppercase; text-decoration: none;
+  }
+  .menu-idx { font-size: 12px; color: var(--accent); letter-spacing: .16em; font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .nav-links, .nav-cta { display: none; }
+    .nav-toggle { display: inline-flex; }
+  }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]')!;
+  const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 24);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]')!;
+
+  const focusables = () =>
+    Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
+
+  function open() {
+    menu.hidden = false;
+    openBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+  function close(returnFocus = true) {
+    menu.hidden = true;
+    openBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    if (returnFocus) openBtn.focus();
+  }
+  openBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', () => close());
+  menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => close(false)));
+  menu.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+    if (e.key === 'Tab') {
+      const f = focusables();
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  window.matchMedia('(min-width: 901px)').addEventListener('change', (m) => { if (m.matches && !menu.hidden) close(false); });
+</script>

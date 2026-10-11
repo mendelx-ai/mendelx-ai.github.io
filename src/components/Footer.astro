@@ -1,0 +1,58 @@
+---
+import Logo from './Logo.astro';
+import { copy } from '../content/copy.en';
+import { CONTACT_EMAIL, LINKEDIN_URL, LOCATION, LEGAL_ENTITY, VAT_NUMBER } from '../config';
+const year = 2026;
+const contact = [
+  CONTACT_EMAIL && { label: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+  LINKEDIN_URL && { label: 'LinkedIn', href: LINKEDIN_URL },
+].filter(Boolean) as { label: string; href: string }[];
+---
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <Logo size={30} />
+        <p class="footer-tag">{copy.meta.tagline}</p>
+      </div>
+      <nav aria-label="Footer">
+        <ul class="footer-links">
+          {copy.footer.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+    </div>
+
+    {(contact.length > 0 || LOCATION) && (
+      <div class="footer-contact">
+        {LOCATION && <span>{LOCATION}</span>}
+        {contact.map((c) => <a href={c.href} rel={c.href.startsWith('http') ? 'noopener' : undefined}>{c.label}</a>)}
+      </div>
+    )}
+
+    <div class="footer-bottom">
+      <span class="footer-copy">© {year} <span class="brand">mendelX</span>. {copy.footer.rights}{LEGAL_ENTITY && ` ${LEGAL_ENTITY}.`}{VAT_NUMBER && ` VAT ${VAT_NUMBER}.`}</span>
+      <span class="footer-built">{copy.footer.builtIn}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--line); padding-block: 72px 32px; }
+  .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+  .footer-tag { color: var(--text-dim); margin-top: 14px; font-size: 16px; }
+  .footer-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 28px; flex-wrap: wrap; }
+  .footer-links a, .footer-contact a {
+    font-family: var(--font-display); font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase;
+    text-decoration: none; color: var(--text-dim); transition: color .2s var(--ease);
+    display: inline-block; padding: 6px 0;
+  }
+  .footer-links a:hover, .footer-contact a:hover { color: var(--text); }
+  .footer-contact { margin-top: 40px; display: flex; gap: 28px; flex-wrap: wrap; color: var(--text-dim); font-size: 15px; align-items: center; }
+  .footer-bottom {
+    margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    font-family: var(--font-display); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim);
+  }
+  .footer-copy .brand { text-transform: none; letter-spacing: .04em; }
+  .footer-built::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); margin-right: 10px; vertical-align: middle; }
+</style>

@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import { copy } from '../content/copy.en';
+const n = copy.notFound;
+---
+<Base title={`${n.title} — mendelX`} noindex>
+  <section class="nf wrap">
+    <p class="label">{n.label}</p>
+    <h1 class="h1">{n.title}</h1>
+    <p class="body">{n.body}</p>
+    <a href="/" class="btn btn--primary">{n.cta} <span class="arrow" aria-hidden="true">→</span></a>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: 80vh; display: grid; align-content: center; gap: 28px; padding-top: var(--nav-h); }
+  .nf .btn { justify-self: start; }
+</style>

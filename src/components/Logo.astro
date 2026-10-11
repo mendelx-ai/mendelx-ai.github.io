@@ -1,0 +1,22 @@
+---
+/** mendelX wordmark: "mendel" in text colour, "X" in accent green. */
+interface Props { size?: number; class?: string; }
+const { size = 26, class: className = '' } = Astro.props;
+---
+<span class={`logo ${className}`} style={`--logo-size:${size}px`} role="img" aria-label="mendelX">
+  <span aria-hidden="true">mendel<span class="logo-x">X</span></span>
+</span>
+
+<style>
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: var(--logo-size);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .logo-x { color: var(--accent); }
+</style>

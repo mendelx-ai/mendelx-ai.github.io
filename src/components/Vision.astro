@@ -1,0 +1,42 @@
+---
+import { copy } from '../content/copy.en';
+const v = copy.vision;
+---
+<section class="section vision" id="vision" aria-labelledby="vision-title">
+  <div class="vision-lines" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="vision-head">
+      <p class="label reveal">{v.label}</p>
+      <h2 id="vision-title" class="h2 reveal" style="--i:1">{v.title}</h2>
+      <p class="lead reveal" style="--i:2">{v.body}</p>
+    </div>
+    <ul class="vision-points">
+      {v.points.map((pt, i) => (
+        <li class="reveal" style={`--i:${i}`}>
+          <span class="pt-idx">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="h3">{pt.title}</h3>
+          <p class="body">{pt.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .vision { overflow: hidden; }
+  .vision-lines {
+    position: absolute; inset: 0; pointer-events: none; opacity: .5;
+    background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% / 12 - 1px), rgba(42,45,39,.7) calc(100% / 12 - 1px) calc(100% / 12));
+    mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  }
+  .vision-head { display: grid; gap: 28px; max-width: 900px; position: relative; }
+  .vision-head .lead { color: var(--text-dim); max-width: 52ch; }
+  .vision-points { list-style: none; margin: clamp(64px, 10vh, 120px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); position: relative; }
+  .vision-points li { padding: 32px 32px 8px 0; display: grid; gap: 14px; align-content: start; }
+  .vision-points li + li { padding-left: 32px; border-left: 1px solid var(--line); }
+  .pt-idx { font-family: var(--font-display); font-size: 12.5px; letter-spacing: .16em; color: var(--accent); }
+  @media (max-width: 900px) {
+    .vision-points { grid-template-columns: 1fr; }
+    .vision-points li, .vision-points li + li { padding: 28px 0; border-left: 0; border-bottom: 1px solid var(--line); }
+  }
+</style>
